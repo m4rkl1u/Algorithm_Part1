@@ -29,7 +29,7 @@ public class Percolation {
         
         for(int i = 0; i < N;  i++){
             uf.union(i, topVirtual);
-            //uf.union((N - 1) * N + i, bottomVirtual);
+            uf.union((N - 1) * N + i, bottomVirtual);
         }
     }
 
@@ -66,11 +66,6 @@ public class Percolation {
         if (i + 1 <= N && isOpen(i + 1, j)) {
             int root = uf.find(i * N + j - 1);
             uf.union(index, root);
-        }
-        
-        if(uf.connected(this.topVirtual, index)) {
-            //int root = uf.find(index);
-            uf.union(index, this.bottomVirtual);
         }
     }
 
@@ -126,22 +121,27 @@ public class Percolation {
     public static void main(String[] args) {
         Percolation p = new Percolation(4);
         
-        p.open(1, 1);
-        p.open(2, 1);
-        p.open(2, 2);
+        //p.open(1, 1);
+        //p.open(2, 1);
+        //p.open(2, 2);
         
-        p.open(2, 3);
-        p.open(3, 3);
+        //p.open(2, 3);
+       // p.open(3, 3);
         
-        p.open(3, 4);
-        p.open(4, 4);
+        //p.open(3, 4);
+       // p.open(4, 4);
+       // p.open(4, 1);
+       // p.open(4, 2);
         p.open(4, 1);
-        p.open(4, 2);
+        p.open(3, 1);
+        p.open(2, 1);
+        p.open(1, 1);
         
         System.out.println(p.percolates());
-        
-        System.out.println(p.isFull(4, 2));
-        System.out.println(p.isFull(4, 4));
-        
+
+        p = new Percolation(2);
+        p.open(1, 1);
+        p.open(2, 2);
+        System.out.println(p.percolates());
     }
 }
