@@ -29,7 +29,7 @@ public class Percolation {
         
         for(int i = 0; i < N;  i++){
             uf.union(i, topVirtual);
-            uf.union((N - 1) * N + i, bottomVirtual);
+        //    uf.union((N - 1) * N + i, bottomVirtual);
         }
     }
 
@@ -110,12 +110,19 @@ public class Percolation {
      */
     public boolean percolates() {
         boolean topFlag = false;
-        boolean bottomFlag = false;
+        //boolean bottomFlag = false;
         for(int i = 1 ;  i <= N; i ++){
             if(isOpen(1, i)) topFlag = true;
-            if(isOpen(N, i)) bottomFlag = true;
+        //    if(isOpen(N, i)) bottomFlag = true;
         } 
-        return (topFlag == true && bottomFlag == true) ?  uf.connected(topVirtual, bottomVirtual) : false;
+        //return (topFlag == true && bottomFlag == true) ?  uf.connected(topVirtual, bottomVirtual) : false;
+        if(!topFlag) return false;
+        
+        for(int i = 0 ; i < N; i++){
+            if(uf.connected(topVirtual, (N - 1) * N + i)) return true;
+        }
+        
+        return false;
     }
 
     public static void main(String[] args) {
