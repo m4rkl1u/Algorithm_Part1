@@ -38,19 +38,24 @@ public class Percolation {
             return;
 
         grid[i - 1][j - 1] = 1;
-
+        
         int index = (i - 1) * N + j - 1;
-        if (j - 1 > 0 && isOpen(i, j - 1) && !uf.connected(index, index - 1 )) {
-            uf.union(index, index - 1);
+        
+        if (j - 1 > 0 && isOpen(i, j - 1)) {
+            int root = uf.find(index - 1);
+            uf.union(index, root);
         }
-        if (j + 1 <= N && isOpen(i, j + 1) && !uf.connected(index, index + 1)) {
-            uf.union(index, index + 1);
+        if (j + 1 <= N && isOpen(i, j + 1)) {
+            int root = uf.find(index + 1);
+            uf.union(index, root);
         }
-        if (i - 1 > 0 && isOpen(i - 1, j) && !uf.connected(index, (i - 2) *N + j -1)) {
-            uf.union(index, (i - 2) * N + j - 1);
+        if (i - 1 > 0 && isOpen(i - 1, j)) {
+            int root = uf.find((i - 2) * N + j - 1);
+            uf.union(index, root);
         }
-        if (i + 1 <= N && isOpen(i + 1, j) && !uf.connected(index, i * N + j - 1)) {
-            uf.union(index, (i) * N + j - 1);
+        if (i + 1 <= N && isOpen(i + 1, j)) {
+            int root = uf.find(i * N + j - 1);
+            uf.union(index, root);
         }
     }
 
