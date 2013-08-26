@@ -5,14 +5,16 @@ public class Percolation {
     private WeightedQuickUnionUF uf; // the union class
     private int N; // Dimensional of matrix
     private int[][] grid; // N * N matrix to identify if is open
-   
+    private int topVirtual;
+    private int bottomVirtual;
+    
     /**
      * constructor for Percolation, build a N*N matrix
      * 
      * @param N
      */
     public Percolation(int N) {
-        this.uf = new WeightedQuickUnionUF(N * N);
+        this.uf = new WeightedQuickUnionUF(N * N  + 2);
         this.N = N;
         this.grid = new int[N][N];
 
@@ -20,6 +22,14 @@ public class Percolation {
             for (int j = 0; j < N; j++) {
                 grid[i][j] = 0;
             }
+        }
+        
+        this.topVirtual = N * N;
+        this.bottomVirtual = N * N + 1;
+        
+        for(int i = 0; i < N;  i++){
+            uf.union(i, topVirtual);
+            //uf.union((N - 1) * N + i, bottomVirtual);
         }
     }
 
@@ -57,6 +67,11 @@ public class Percolation {
             int root = uf.find(i * N + j - 1);
             uf.union(index, root);
         }
+        
+        if(uf.connected(this.topVirtual, index)) {
+            //int root = uf.find(index);
+            uf.union(index, this.bottomVirtual);
+        }
     }
 
     /**
@@ -89,13 +104,8 @@ public class Percolation {
         if(grid[i - 1][j - 1] == 0) {
             return false;
         } 
-
-        for (int k = 0; k < N; k++) {
-            int index = (i - 1) * N + j - 1;
-            if (isOpen(1, k+1) && uf.connected(k, index))
-                return true;
-        }
-        return false;
+        
+        return uf.connected(topVirtual, (i - 1) * N + j - 1);
     }
 
     /**
@@ -104,18 +114,34 @@ public class Percolation {
      * @return
      */
     public boolean percolates() {
-        for (int i = 1; i <= N; i++) {
-            if (isOpen(N, i) && isFull(N, i))
-                return true;
-        }
-        return false;
+        boolean topFlag = false;
+        boolean bottomFlag = false;
+        for(int i = 1 ;  i <= N; i ++){
+            if(isOpen(1, i)) topFlag = true;
+            if(isOpen(N, i)) bottomFlag = true;
+        } 
+        return (topFlag == true && bottomFlag == true) ?  uf.connected(topVirtual, bottomVirtual) : false;
     }
 
     public static void main(String[] args) {
-        Percolation p = new Percolation(2);
+        Percolation p = new Percolation(4);
+        
         p.open(1, 1);
+        p.open(2, 1);
         p.open(2, 2);
-        p.open(1, 2);
+        
+        p.open(2, 3);
+        p.open(3, 3);
+        
+        p.open(3, 4);
+        p.open(4, 4);
+        p.open(4, 1);
+        p.open(4, 2);
+        
         System.out.println(p.percolates());
+        
+        System.out.println(p.isFull(4, 2));
+        System.out.println(p.isFull(4, 4));
+        
     }
 }
