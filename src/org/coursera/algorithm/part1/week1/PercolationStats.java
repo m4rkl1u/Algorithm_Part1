@@ -1,4 +1,4 @@
-package org.coursera.algorithm.part1;
+package org.coursera.algorithm.part1.week1;
 
 import java.util.Random;
 

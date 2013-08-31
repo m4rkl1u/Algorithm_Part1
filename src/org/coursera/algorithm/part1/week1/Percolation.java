@@ -1,10 +1,10 @@
-package org.coursera.algorithm.part1;
+package org.coursera.algorithm.part1.week1;
 
 public class Percolation {
 
     private WeightedQuickUnionUF uf; // the union class
-    private int N; // Dimensional of matrix
-    private int[][] grid; // N * N matrix to identify if is open
+    private WeightedQuickUnionUF uf2;
+    private int[] grid; // N * N matrix to identify if is open
     private int topVirtual;
     private int bottomVirtual;
     
@@ -15,21 +15,20 @@ public class Percolation {
      */
     public Percolation(int N) {
         this.uf = new WeightedQuickUnionUF(N * N  + 2);
-        this.N = N;
-        this.grid = new int[N][N];
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                grid[i][j] = 0;
-            }
-        }
+        this.uf2= new WeightedQuickUnionUF(N * N  + 1);
+        this.grid = new int[N*N];
         
         this.topVirtual = N * N;
         this.bottomVirtual = N * N + 1;
         
         for(int i = 0; i < N;  i++){
             uf.union(i, topVirtual);
-        //    uf.union((N - 1) * N + i, bottomVirtual);
+            uf.union((N - 1) * N + i, bottomVirtual);
+            uf2.union(i, topVirtual);
+        }
+        
+        for(int i = 0; i < N * N; i++) {
+        	grid[i] = 0;
         }
     }
 
@@ -40,32 +39,42 @@ public class Percolation {
      * @param j
      */
     public void open(int i, int j) {
+    	int N = (int) Math.sqrt(grid.length);
+        int index = (i - 1) * N + j - 1;
+
         if (i < 1 || j < 1 || i > N || j > N) {
             throw new IndexOutOfBoundsException("out of index");
         }
-
-        if (grid[i - 1][j - 1] == 1)
+        
+        if (grid[index] == 1)
             return;
 
-        grid[i - 1][j - 1] = 1;
+        grid[index] = 1;
         
-        int index = (i - 1) * N + j - 1;
         
         if (j - 1 > 0 && isOpen(i, j - 1)) {
-            int root = uf.find(index - 1);
-            uf.union(index, root);
+            //int root = uf.find(index - 1);
+            //uf.union(index, root);
+        	uf.union(index, index - 1);
+        	uf2.union(index, index - 1);
         }
         if (j + 1 <= N && isOpen(i, j + 1)) {
-            int root = uf.find(index + 1);
-            uf.union(index, root);
+            //int root = uf.find(index + 1);
+            //uf.union(index, root);
+        	uf.union(index, index + 1);
+        	uf2.union(index, index + 1);
         }
         if (i - 1 > 0 && isOpen(i - 1, j)) {
-            int root = uf.find((i - 2) * N + j - 1);
-            uf.union(index, root);
+            //int root = uf.find((i - 2) * N + j - 1);
+            //uf.union(index, root);
+        	uf.union(index, (i - 2) * N + j -1);
+        	uf2.union(index, (i - 2) * N + j -1);
         }
         if (i + 1 <= N && isOpen(i + 1, j)) {
-            int root = uf.find(i * N + j - 1);
-            uf.union(index, root);
+            //int root = uf.find(i * N + j - 1);
+            //uf.union(index, root);
+        	uf.union(index, (i) * N + j -1);
+        	uf2.union(index, (i) * N + j -1);
         }
     }
 
@@ -77,10 +86,13 @@ public class Percolation {
      * @return
      */
     public boolean isOpen(int i, int j) {
+    	int N = (int) Math.sqrt(grid.length);
+        int index = (i - 1) * N + j - 1;
+        
         if (i < 1 || j < 1 || i > N || j > N){
             throw new IndexOutOfBoundsException("out of index");
         }
-        return grid[i - 1][j - 1] == 1;
+        return grid[index] == 1;
     }
 
     /**
@@ -91,16 +103,18 @@ public class Percolation {
      * @return
      */
     public boolean isFull(int i, int j) {
-        // is site (row i, column j) full?
-        if (i < 1 || j < 1 || i > N || j > N ){
+    	int N = (int) Math.sqrt(grid.length);
+        int index = (i - 1) * N + j - 1;
+        
+    	if (i < 1 || j < 1 || i > N || j > N ){
             throw new IndexOutOfBoundsException("out of index");
         }
 
-        if(grid[i - 1][j - 1] == 0) {
+        if(grid[index] == 0) {
             return false;
         } 
         
-        return uf.connected(topVirtual, (i - 1) * N + j - 1);
+        return uf2.connected(topVirtual, (i - 1) * N + j - 1);
     }
 
     /**
@@ -109,20 +123,22 @@ public class Percolation {
      * @return
      */
     public boolean percolates() {
+    	int N = (int) Math.sqrt(grid.length);
+        
         boolean topFlag = false;
-        //boolean bottomFlag = false;
+        boolean bottomFlag = false;
         for(int i = 1 ;  i <= N; i ++){
             if(isOpen(1, i)) topFlag = true;
-        //    if(isOpen(N, i)) bottomFlag = true;
+            if(isOpen(N, i)) bottomFlag = true;
         } 
-        //return (topFlag == true && bottomFlag == true) ?  uf.connected(topVirtual, bottomVirtual) : false;
-        if(!topFlag) return false;
+        return (topFlag == true && bottomFlag == true) ?  uf.connected(topVirtual, bottomVirtual) : false;
+        /*if(!topFlag) return false;
         
         for(int i = 0 ; i < N; i++){
-            if(uf.connected(topVirtual, (N - 1) * N + i)) return true;
+            if(isOpen(N, i + 1) && uf.connected(topVirtual, (N - 1) * N + i)) return true;
         }
         
-        return false;
+        return false;*/
     }
 
     public static void main(String[] args) {
